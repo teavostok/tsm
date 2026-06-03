@@ -61,12 +61,14 @@ def get_vol():
 
 
 def set_vol(v):
-    hyprctl(["wpctl", "set-volume", "-l", "1.5", "@DEFAULT_AUDIO_SINK@", f"{v}%"])
+    val = v / 100.0
+    hyprctl(["wpctl", "set-volume", "-l", "1.5", "@DEFAULT_AUDIO_SINK@", f"{val}"])
 
 
 class VolumeWindow:
     def __init__(self):
         self._dirty = False
+        self._exposed = False
         vol, muted = get_vol()
 
         css_provider = Gtk.CssProvider()
@@ -86,7 +88,7 @@ class VolumeWindow:
         self.win.set_position(Gtk.WindowPosition.NONE)
         self.win.set_accept_focus(True)
         self.win.connect("key-press-event", self._on_key)
-        self.win.connect("realize", self._on_realize)
+        self.win.connect("focus-out-event", self._on_focus_out)
 
         box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
         box.set_valign(Gtk.Align.CENTER)
@@ -107,15 +109,15 @@ class VolumeWindow:
         box.pack_start(self.scale, True, True, 0)
         self.win.add(box)
         self.win.set_size_request(300, -1)
-        self.win.show_all()
 
-    def _on_realize(self, *_):
         try:
             out = hyprctl(["hyprctl", "monitors"])
             for line in out.splitlines():
                 line = line.strip()
                 if "@" in line and " at " in line:
-                    sw = int(line.split("x", 1)[0])
+                    parts = line.split(None, 1)
+                    res = parts[0].split("x")
+                    sw = int(res[0])
                     break
             else:
                 sw = 1920
@@ -126,10 +128,11 @@ class VolumeWindow:
         x = sw - pw - 18
         y = 36
         self.win.move(x, y)
+        self.win.show_all()
 
-        GLib.timeout_add(100, self._reposition, x, y)
+        GLib.idle_add(self._stabilize, x, y)
 
-    def _reposition(self, x, y):
+    def _stabilize(self, x, y):
         clients = json.loads(hyprctl(["hyprctl", "clients", "-j"]))
         for c in clients:
             if c.get("title") == "volume-slider":
@@ -139,6 +142,9 @@ class VolumeWindow:
                              f"exact {x} {y},address:{addr}"])
                 break
         return False
+
+    def _on_focus_out(self, *_):
+        self._close()
 
     def _on_change(self, scale):
         if self._dirty:
