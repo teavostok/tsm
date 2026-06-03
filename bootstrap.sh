@@ -18,6 +18,38 @@ link() {
   echo "    linked $1 → $2"
 }
 
+installed() {
+  pacman -Q "$1" &>/dev/null
+}
+
+try_install() {
+  local pkg="$1"
+  local desc="$2"
+  if installed "$pkg"; then
+    echo "    $pkg ✓"
+  else
+    echo ""
+    read -r -p "  install $pkg? ($desc) [y/N] " ans
+    if [[ "$ans" =~ ^[yY] ]]; then
+      yay -S --noconfirm "$pkg" 2>/dev/null || sudo pacman -S --noconfirm "$pkg" 2>/dev/null || echo "    could not install $pkg (install manually)"
+    fi
+  fi
+}
+
+install_extras() {
+  echo ""
+  echo "  optional extras"
+
+  try_install "python-pillow"    "album art color extraction for mpris-glow"
+  try_install "playerctl"        "media player control (mpris in waybar)"
+  try_install "grim"             "screenshot tool (Super+Shift+S)"
+  try_install "slurp"            "region selection for grim"
+  try_install "ttf-jetbrains-mono" "nerd font for waybar icons"
+  try_install "brightnessctl"    "keyboard backlight control"
+
+  echo ""
+}
+
 install() {
   echo ""
   echo "  linking configs..."
@@ -41,6 +73,8 @@ install() {
   echo "  setting up mpd..."
   touch "$HOME/.config/mpd/database" "$HOME/.config/mpd/state" "$HOME/.config/mpd/log"
   mkdir -p "$HOME/.config/mpd/playlists" "$HOME/Music"
+
+  install_extras
 
   echo ""
   echo "  done — reload your compositor to apply changes."
@@ -86,7 +120,7 @@ case "$MODE" in
     ;;
   *)
     echo "usage: ./bootstrap.sh [install|clean]"
-    echo "  install  — symlink dotfiles (default)"
+    echo "  install  — symlink dotfiles + ask about optional packages"
     echo "  clean    — remove old configs then install"
     exit 1
     ;;

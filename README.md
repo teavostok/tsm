@@ -20,6 +20,9 @@ cd ~/dotfiles
 chmod +x bootstrap.sh && ./bootstrap.sh
 ```
 
+The script will symlink everything and then ask about optional packages:
+`python-pillow`, `playerctl`, `grim`, `slurp`, `ttf-jetbrains-mono`, `brightnessctl`.
+
 To remove your existing configs first (replaces with clean symlinks):
 
 ```bash
