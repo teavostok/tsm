@@ -43,7 +43,9 @@ treeview:selected {
   background: #007aff; color: white;
 }
 treeview.view { border: none; }
-sourceview, textview text {
+textview {
+  background: #1c1c1e;
+  color: rgba(255,255,255,0.85);
   font-family: "JetBrainsMono Nerd Font", "monospace";
   font-size: 13px;
 }
@@ -479,9 +481,10 @@ class Editor:
         path = self._current_path()
         if not path:
             return self._save_as()
-        buf = self._current_view()
-        if not buf:
+        view = self._current_view()
+        if not view:
             return
+        buf = view.get_buffer()
         start, end = buf.get_bounds()
         text = buf.get_text(start, end, False)
         try:
