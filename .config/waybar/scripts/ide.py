@@ -311,14 +311,15 @@ class Editor:
         d.destroy()
         return path
 
-    def _open_folder(self, *_):
+    def _open_folder(self, *args):
         path = self._open_file_dialog(folder=True)
         if path:
             self._root = path
             self._populate_tree(path)
 
-    def _open_file(self, path=None):
-        if not path:
+    def _open_file(self, *_path):
+        path = _path[0] if _path else None
+        if path is None or not isinstance(path, str):
             path = self._open_file_dialog()
         if not path:
             return
