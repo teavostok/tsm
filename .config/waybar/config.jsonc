@@ -125,7 +125,7 @@
         "format-icons": {
             "default": ["", "", ""]
         },
-        "on-click": "bash ~/.config/waybar/scripts/volume-slider.sh",
+        "on-click": "python3 ~/.config/waybar/scripts/volume-slider.py",
         "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
     },
 

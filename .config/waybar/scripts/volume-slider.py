@@ -34,19 +34,15 @@ label#icon {
 }
 scale { min-height: 40px; }
 scale trough {
-  min-height: 6px;
-  border-radius: 3px;
+  min-height: 6px; border-radius: 3px;
   background: rgba(255, 255, 255, 0.12);
 }
 scale highlight {
-  border-radius: 3px;
-  background: #007aff;
+  border-radius: 3px; background: #007aff;
 }
 scale slider {
-  min-height: 18px;
-  min-width: 18px;
-  border-radius: 9px;
-  background: white;
+  min-height: 18px; min-width: 18px;
+  border-radius: 9px; background: white;
   box-shadow: 0 2px 6px rgba(0,0,0,0.36);
 }
 """
@@ -87,8 +83,10 @@ class VolumeWindow:
         self.win.set_resizable(False)
         self.win.set_skip_taskbar_hint(True)
         self.win.set_keep_above(True)
-        self.win.connect("focus-out-event", lambda *_: self._close())
+        self.win.set_position(Gtk.WindowPosition.NONE)
+        self.win.set_accept_focus(True)
         self.win.connect("key-press-event", self._on_key)
+        self.win.connect("realize", self._on_realize)
 
         box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
         box.set_valign(Gtk.Align.CENTER)
@@ -111,47 +109,34 @@ class VolumeWindow:
         self.win.set_size_request(300, -1)
         self.win.show_all()
 
-        GLib.idle_add(self._position)
-
-    def _position(self):
+    def _on_realize(self, *_):
         try:
-            out = subprocess.run(["hyprctl", "cursorpos"],
-                                 capture_output=True, text=True).stdout.strip()
-            cx, cy = (int(x.strip()) for x in out.split(",", 1))
-        except (ValueError, IndexError):
-            cx, cy = 960, 540
-
-        try:
-            mon_out = subprocess.run(["hyprctl", "monitors"],
-                                     capture_output=True, text=True).stdout
-            for line in mon_out.splitlines():
+            out = hyprctl(["hyprctl", "monitors"])
+            for line in out.splitlines():
                 line = line.strip()
                 if "@" in line and " at " in line:
-                    w = int(line.split("x", 1)[0])
-                    h = int(line.split("x", 1)[1].split("@")[0])
-                    sw, sh = w, h
+                    sw = int(line.split("x", 1)[0])
                     break
             else:
-                sw, sh = 1920, 1200
+                sw = 1920
         except (ValueError, IndexError):
-            sw, sh = 1920, 1200
+            sw = 1920
 
         pw = 300
-        x = min(cx - pw // 2, sw - pw - 10)
-        x = max(x, 10)
-        y = cy + 14
+        x = sw - pw - 18
+        y = 36
+        self.win.move(x, y)
 
-        clients = json.loads(
-            subprocess.run(["hyprctl", "clients", "-j"],
-                           capture_output=True, text=True).stdout
-        )
+        GLib.timeout_add(100, self._reposition, x, y)
+
+    def _reposition(self, x, y):
+        clients = json.loads(hyprctl(["hyprctl", "clients", "-j"]))
         for c in clients:
             if c.get("title") == "volume-slider":
                 addr = c.get("address", "")
                 if addr:
-                    subprocess.run(["hyprctl", "dispatch", "movewindowpixel",
-                                    f"exact {x} {y},address:{addr}"],
-                                   capture_output=True)
+                    hyprctl(["hyprctl", "dispatch", "movewindowpixel",
+                             f"exact {x} {y},address:{addr}"])
                 break
         return False
 
