@@ -81,6 +81,7 @@ def hypr_move(addr, x, y):
 class VolumeWindow:
     def __init__(self):
         self._timer_id = None
+        self._close_timer = None
         vol, muted = get_vol()
 
         css_provider = Gtk.CssProvider()
@@ -99,6 +100,7 @@ class VolumeWindow:
         self.win.set_keep_above(True)
         self.win.set_accept_focus(True)
         self.win.connect("key-press-event", self._on_key)
+        self.win.connect("focus-in-event", self._on_focus_in)
         self.win.connect("focus-out-event", self._on_focus_out)
 
         box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
@@ -120,13 +122,15 @@ class VolumeWindow:
         box.pack_start(self.scale, True, True, 0)
         self.win.add(box)
         self.win.set_size_request(300, -1)
-        self.win.show_all()
 
         sw = get_screen_w()
         self._target_x = sw - 318
         self._target_y = 36
+
+        self.win.show_all()
+        self.win.get_window().set_opacity(0)
         self._retries = 0
-        GLib.timeout_add(150, self._reposition)
+        GLib.timeout_add(10, self._reposition)
 
     def _reposition(self):
         clients = json.loads(sh(["hyprctl", "clients", "-j"]))
@@ -134,16 +138,26 @@ class VolumeWindow:
             if c.get("title") == "volume-slider":
                 addr = c.get("address", "")
                 if addr:
-                    x, y = self._target_x, self._target_y
-                    hypr_move(addr, x, y)
+                    hypr_move(addr, self._target_x, self._target_y)
+                    gdk_win = self.win.get_window()
+                    if gdk_win:
+                        gdk_win.set_opacity(1)
                 return False
         self._retries += 1
         if self._retries < 10:
             GLib.timeout_add(100, self._reposition)
         return False
 
+    def _on_focus_in(self, *_):
+        if self._close_timer is not None:
+            GLib.source_remove(self._close_timer)
+            self._close_timer = None
+        return False
+
     def _on_focus_out(self, *_):
-        self._close()
+        if self._close_timer is None:
+            self._close_timer = GLib.timeout_add(500, self._close)
+        return False
 
     def _on_change(self, scale):
         if self._timer_id is not None:
