@@ -33,4 +33,13 @@ link ".config/ncmpcpp"        ".config/ncmpcpp"
 link ".config/gtk-3.0"        ".config/gtk-3.0"
 link ".config/fontconfig"     ".config/fontconfig"
 
+echo "  setting up mpd..."
+touch "$HOME/.config/mpd/database" "$HOME/.config/mpd/state" "$HOME/.config/mpd/log"
+mkdir -p "$HOME/.config/mpd/playlists" "$HOME/Music"
+
+echo "  setting up wallpapers..."
+mkdir -p "$HOME/walls"
+
 echo "  done — reload your compositor to apply changes."
+echo "  add wallpapers to ~/walls/ and press Super+W to cycle."
+echo "  add music to ~/Music/ and start ncmpcpp to play."
