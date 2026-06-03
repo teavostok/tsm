@@ -3,7 +3,7 @@ import os, sys, subprocess, gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('GtkSource', '3.0')
 gi.require_version('Gdk', '3.0')
-from gi.repository import Gtk, GtkSource, Gdk, GLib, Pango
+from gi.repository import Gtk, GtkSource, Gdk, GLib
 
 CSS = """
 window { background: #1c1c1e; }
@@ -43,8 +43,8 @@ treeview:selected {
   background: #007aff; color: white;
 }
 treeview.view { border: none; }
-textview {
-  background: #1c1c1e; color: rgba(255,255,255,0.8);
+sourceview, textview text {
+  font-family: "JetBrainsMono Nerd Font", "monospace";
   font-size: 13px;
 }
 entry {
@@ -417,7 +417,6 @@ class Editor:
         view.set_auto_indent(True)
         view.set_highlight_current_line(True)
         view.set_monospace(True)
-        view.override_font(Pango.font_description_from_string("JetBrainsMono Nerd Font 13"))
 
         sw = Gtk.ScrolledWindow()
         sw.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
