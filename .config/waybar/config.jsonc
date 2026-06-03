@@ -21,8 +21,15 @@
         "network",
         "pulseaudio",
         "battery",
+        "custom/ide",
         "custom/power"
     ],
+
+    "custom/ide": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "python3 ~/.config/waybar/scripts/ide.py"
+    },
 
     "custom/logo": {
         "format": "",
