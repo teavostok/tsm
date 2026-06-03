@@ -1,0 +1,175 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 30,
+    "spacing": 10,
+
+    "modules-left": [
+        "custom/logo",
+        "clock",
+        "hyprland/workspaces",
+        "hyprland/window"
+    ],
+    "modules-center": [
+        "mpris"
+    ],
+    "modules-right": [
+        "cpu",
+        "memory",
+        "temperature",
+        "custom/separator",
+        "network",
+        "pulseaudio",
+        "battery",
+        "custom/power"
+    ],
+
+    "custom/logo": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "rofi -show drun"
+    },
+
+    "hyprland/workspaces": {
+        "format": "{icon}",
+        "format-icons": {
+            "1": "1",
+            "2": "2",
+            "3": "3",
+            "4": "4",
+            "5": "5",
+            "6": "6",
+            "7": "7",
+            "8": "8",
+            "9": "9",
+            "active": "●",
+            "default": "○"
+        },
+        "persistent_workspaces": {
+            "1": [],
+            "2": [],
+            "3": [],
+            "4": [],
+            "5": []
+        },
+        "on-scroll-up": "hyprctl dispatch workspace e+1",
+        "on-scroll-down": "hyprctl dispatch workspace e-1"
+    },
+
+    "hyprland/window": {
+        "format": "{title}",
+        "max-length": 35,
+        "rewrite": {
+            "^(?!.*\\S).*": "Desktop"
+        }
+    },
+
+    "mpris": {
+        "format": "{player_icon}  {dynamic}",
+        "format-paused": "{status_icon}  {dynamic}",
+        "tooltip-format": "<b>{title}</b>\n{artist}\n<small>{album}  ·  {player}</small>",
+        "tooltip-format-paused": "<b>{title}</b>\n{artist}\n<small>{album}  ·  {player} (paused)</small>",
+        "max-length": 28,
+        "player-icons": {
+            "default": "",
+            "spotify": "",
+            "firefox": ""
+        },
+        "status-icons": {
+            "paused": "",
+            "playing": ""
+        },
+        "dynamic-order": [
+            "title",
+            "artist"
+        ],
+        "ignored-players": [
+            "firefox"
+        ],
+        "on-click": "playerctl play-pause",
+        "on-click-right": "playerctl next"
+    },
+
+    "clock": {
+        "format": "{:%H:%M}",
+        "format-alt": "{:%a %b %d  ·  %H:%M}",
+        "tooltip-format": "<big><b>{:%A %d %B %Y}</b></big>\n\n<tt>{calendar}</tt>",
+        "calendar": {
+            "mode": "month",
+            "weeks-pos": "right",
+            "format": {
+                "months": "<b>{}</b>",
+                "weekdays": "<b>{}</b>",
+                "today": "<b><span color='#5ac8fa'>{}</span></b>"
+            }
+        },
+        "on-click": "swaync-client -t",
+        "interval": 30
+    },
+
+    "network": {
+        "format-wifi": "",
+        "format-ethernet": "",
+        "format-disconnected": "",
+        "tooltip-format-wifi": "<b>{essid}</b>  ·  {signalStrength}%\nIP {ipaddr}",
+        "tooltip-format-ethernet": "<b>{ifname}</b>\nIP {ipaddr}",
+        "tooltip-format-disconnected": "Disconnected",
+        "on-click": "bash ~/.config/waybar/scripts/network.sh",
+        "interval": 5
+    },
+
+    "pulseaudio": {
+        "scroll-step": 5,
+        "format": "{icon}",
+        "format-muted": "",
+        "format-icons": {
+            "default": ["", "", ""]
+        },
+        "on-click": "python3 ~/.config/waybar/scripts/volume-slider.py",
+        "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+    },
+
+    "battery": {
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{icon}",
+        "format-charging": "",
+        "format-plugged": "",
+        "format-icons": ["", "", "", "", ""]
+    },
+
+    "custom/separator": {
+        "format": "│",
+        "interval": "once",
+        "tooltip": false
+    },
+
+    "cpu": {
+        "format": " ",
+        "tooltip-format": "CPU  {usage}%\n{avg_frequency} GHz\n{i3}  ·  {i7}",
+        "interval": 5
+    },
+
+    "memory": {
+        "format": " ",
+        "tooltip-format": "Memory  {percentage}%\n{used} / {total} GiB\nSwap: {swapUsed} / {swapTotal} GiB",
+        "interval": 10
+    },
+
+    "temperature": {
+        "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+        "critical-threshold": 80,
+        "format": " ",
+        "format-critical": " ",
+        "tooltip-format": "{temperatureC}°C",
+        "interval": 10
+    },
+
+    "custom/power": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "bash ~/.config/waybar/scripts/power.sh"
+    }
+}

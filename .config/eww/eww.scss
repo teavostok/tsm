@@ -1,0 +1,313 @@
+// ================================================================
+//  EWW STYLESHEET  ·  macOS Tahoe White Glass
+//  Compositor: Hyprland  ·  Icon font: Nerd Fonts
+//
+//  The frosted-glass blur is provided by Hyprland; GTK/EWW
+//  supplies only the translucent white overlay on top.
+//
+//  HYPRLAND layerrules (hyprland.conf):
+//  ─────────────────────────────────────
+//  layerrule = blur,       eww-bar
+//  layerrule = blur,       eww-dock
+//  layerrule = ignorezero, eww-bar
+//  layerrule = ignorezero, eww-dock
+//  blurls    = eww-bar
+//  blurls    = eww-dock
+//
+//  RECOMMENDED blur settings (hyprland.conf  › decoration):
+//  ─────────────────────────────────────
+//  blur {
+//    enabled          = true
+//    size             = 8
+//    passes           = 3
+//    new_optimizations = true
+//    ignore_opacity   = true
+//    xray             = false
+//  }
+//
+//  FONTS:
+//  ─────────────────────────────────────
+//  paru -S ttf-sf-pro              # macOS SF Pro (AUR)
+//  paru -S ttf-inter               # open fallback
+//  paru -S ttf-jetbrains-mono-nerd # nerd-font icons
+// ================================================================
+
+
+// ── Glass Surfaces ───────────────────────────────────────────────
+
+$glass-bar:    rgba(246, 248, 254, 0.48);  // bar background
+$glass-pill:   rgba(255, 255, 255, 0.65);  // workspace / clock pill
+$glass-chip:   rgba(255, 255, 255, 0.58);  // tray chips
+$glass-dock:   rgba(246, 248, 254, 0.52);  // dock background
+$glass-hover:  rgba(255, 255, 255, 0.82);  // hover state
+$glass-press:  rgba(255, 255, 255, 0.96);  // pressed state
+
+// ── Borders ──────────────────────────────────────────────────────
+
+$border:       rgba(255, 255, 255, 0.80);
+$border-dim:   rgba(190, 205, 230, 0.45);
+
+// ── Shadows ──────────────────────────────────────────────────────
+
+$shadow-xs:    0 1px  6px rgba(0,   0,   0,   0.07);
+$shadow-sm:    0 2px 14px rgba(0,   0,   0,   0.10);
+$shadow-md:    0 4px 22px rgba(0,   0,   0,   0.14);
+$shadow-lg:    0 8px 36px rgba(0,   0,   0,   0.20);
+
+// ── Text ─────────────────────────────────────────────────────────
+
+$text:         rgba(12,  15,  24,  0.92);  // primary
+$text-sub:     rgba(50,  60,  88,  0.62);  // secondary / labels
+$text-dim:     rgba(85,  95, 120,  0.45);  // muted / inactive
+
+// ── Accent / Status ──────────────────────────────────────────────
+
+$blue:         #1568f7;
+$blue-faint:   rgba(21, 104, 247, 0.16);
+$green:        #28c76f;
+$orange:       #f59e0b;
+$red:          #ef4444;
+
+// ── Shape ────────────────────────────────────────────────────────
+
+$r-pill:  999px;
+$r-chip:   20px;
+$r-dock:   22px;
+$r-btn:    12px;
+
+// ── Typography ───────────────────────────────────────────────────
+
+$font:  "SF Pro Display", "Inter", "Helvetica Neue", sans-serif;
+$nerd:  "JetBrainsMono Nerd Font", "FiraCode Nerd Font",
+        "Symbols Nerd Font Mono", monospace;
+
+
+// ================================================================
+//  GLOBAL RESET
+// ================================================================
+
+* {
+  all:         unset;
+  font-family: $font;
+  font-size:   13px;
+  color:       $text;
+  box-sizing:  border-box;
+}
+
+
+// ================================================================
+//  TOP BAR  —  full-width glass strip
+// ================================================================
+
+.bar-inner {
+  background-color: $glass-bar;
+  border-bottom:    1px solid $border;
+  box-shadow:       $shadow-sm;
+  min-height:       40px;
+  padding:          0 14px;
+}
+
+// Align left / right sections to vertical center
+.bar-left,
+.bar-right {
+  margin-top:    auto;
+  margin-bottom: auto;
+}
+
+.bar-right {
+  margin-left: auto;   // push right side all the way right
+}
+
+
+// ================================================================
+//  APPLE LOGO
+// ================================================================
+
+.apple-logo {
+  font-family: $nerd;
+  font-size:   18px;
+  color:       $text;
+  opacity:     0.80;
+  min-width:   22px;
+}
+
+
+// ================================================================
+//  SHARED GLASS PILL  (.pill)
+// ================================================================
+
+.pill {
+  background-color: $glass-pill;
+  border:           1px solid $border;
+  border-radius:    $r-pill;
+  box-shadow:       $shadow-xs;
+}
+
+
+// ================================================================
+//  WORKSPACES
+// ================================================================
+
+.workspaces-pill {
+  padding: 5px 9px;
+}
+
+// Inactive dot — rendered as a tiny circle via CSS alone
+button.ws-dot {
+  font-family:      $nerd;
+  font-size:        0px;          // hide any text content
+  min-width:        8px;
+  min-height:       8px;
+  border-radius:    $r-pill;
+  background-color: rgba(110, 125, 160, 0.38);
+  padding:          0;
+  transition:       all 220ms ease;
+}
+
+button.ws-dot:hover {
+  background-color: rgba(21, 104, 247, 0.40);
+}
+
+// Active dot — elongated pill in accent blue
+button.ws-dot.active {
+  min-width:        22px;
+  min-height:       8px;
+  background-color: $blue;
+  box-shadow:       0 0 8px rgba(21, 104, 247, 0.45);
+}
+
+
+// ================================================================
+//  CENTER CLOCK
+// ================================================================
+
+.clock-pill {
+  // slightly less opaque than the workspace pill for hierarchy
+  background-color: rgba(255, 255, 255, 0.42);
+  border:           1px solid $border;
+  border-radius:    $r-chip;
+  box-shadow:       $shadow-xs;
+  padding:          3px 18px 4px;
+}
+
+.clock-time {
+  font-size:      16px;
+  font-weight:    600;
+  letter-spacing: -0.5px;
+  color:          $text;
+}
+
+.clock-ampm {
+  font-size:   10.5px;
+  font-weight: 500;
+  color:       $text-sub;
+  margin-top:  2px;         // nudge up to align with time baseline
+}
+
+.clock-date {
+  font-size:      10px;
+  font-weight:    400;
+  letter-spacing: 0.15px;
+  color:          $text-sub;
+  text-align:     center;
+}
+
+
+// ================================================================
+//  SYSTEM TRAY  /  CHIPS
+// ================================================================
+
+.sys-tray {
+  margin-top:    auto;
+  margin-bottom: auto;
+}
+
+// Base chip glass pill
+.chip {
+  background-color: $glass-chip;
+  border:           1px solid $border;
+  border-radius:    $r-chip;
+  padding:          4px 10px;
+  box-shadow:       $shadow-xs;
+  transition:       background-color 160ms ease;
+}
+
+.chip:hover {
+  background-color: $glass-hover;
+}
+
+// Icon (nerd font glyph)
+.chip-icon {
+  font-family: $nerd;
+  font-size:   13px;
+  color:       $text-sub;
+}
+
+// Value label
+.chip-label {
+  font-size:   11.5px;
+  font-weight: 500;
+  color:       $text;
+  min-width:   28px;
+}
+
+// ── Per-chip icon tints ────────────────────────────────────────────
+.net-chip .chip-icon { color: $blue;  }
+.bat-chip .chip-icon { color: $green; }
+
+// Dim CPU / RAM icons slightly more (lower visual priority)
+.cpu-chip .chip-icon,
+.ram-chip .chip-icon {
+  color: $text-dim;
+}
+
+
+// ================================================================
+//  DOCK
+// ================================================================
+
+.dock-inner {
+  background-color: $glass-dock;
+  border:           1px solid $border;
+  border-radius:    $r-dock;
+  padding:          7px 12px;
+  box-shadow:       $shadow-lg;
+  min-height:       58px;
+}
+
+// Individual dock app button
+button.dock-item {
+  border-radius:    $r-btn;
+  min-width:        46px;
+  min-height:       46px;
+  padding:          7px;
+  background-color: transparent;
+  transition:       background-color 180ms ease,
+                    box-shadow       180ms ease;
+}
+
+button.dock-item:hover {
+  background-color: $glass-hover;
+  box-shadow:       $shadow-sm;
+}
+
+button.dock-item:active {
+  background-color: $glass-press;
+  box-shadow:       $shadow-xs;
+}
+
+// Nerd-font icon inside each button
+.dock-icon {
+  font-family: $nerd;
+  font-size:   22px;
+  color:       $text;
+}
+
+// Thin vertical separator between app groups
+.dock-sep {
+  background-color: $border-dim;
+  min-width:        1px;
+  min-height:       30px;
+  margin:           8px 4px;
+  border-radius:    1px;
+}

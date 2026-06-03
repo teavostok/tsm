@@ -1,0 +1,70 @@
+;; ╔══════════════════════════════════════════════════════════════════╗
+;; ║         EWW  ·  macOS Tahoe Glass  ·  DOCK ONLY                 ║
+;; ║         (bar handled by Waybar — this is supplementary)         ║
+;; ╠══════════════════════════════════════════════════════════════════╣
+;; ║  Deps: nerd-fonts                                               ║
+;; ║                                                                  ║
+;; ║  hyprland.conf:                                                  ║
+;; ║    layerrule = blur,       eww-dock                              ║
+;; ║    layerrule = ignorezero, eww-dock                              ║
+;; ║    blurls    = eww-dock                                          ║
+;; ║                                                                  ║
+;; ║  Usage:  eww open dock                                           ║
+;; ╚══════════════════════════════════════════════════════════════════╝
+
+
+;;;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;;; WIDGETS
+;;;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+;; Single app button
+(defwidget dock-btn [icon label cmd]
+  (button
+    :class   "dock-item"
+    :onclick  cmd
+    :tooltip  label
+    (label :class "dock-icon" :text icon)))
+
+;; Dock row
+;;  Swap any :icon / :label / :cmd to match your setup.
+;;  Nerd font refs in comments — use any Nerd Font (JetBrains, Fira, etc.)
+(defwidget dock []
+  (box
+    :class        "dock-inner"
+    :space-evenly  false
+    :spacing        4
+    ;;                   icon   label           launch command
+    (dock-btn :icon "󰉋"  :label "Files"     :cmd "thunar &")          ;; nf-md-folder
+    (dock-btn :icon ""   :label "Terminal"  :cmd "kitty &")           ;; nf-fa-terminal
+    (dock-btn :icon "󰈹"  :label "Firefox"   :cmd "firefox &")         ;; nf-md-firefox
+    (dock-btn :icon "󰨞"  :label "VS Code"   :cmd "code &")            ;; nf-md-vscode
+    (dock-btn :icon "󰙯"  :label "Discord"   :cmd "discord &")         ;; nf-md-discord
+    (dock-btn :icon ""   :label "Spotify"   :cmd "spotify &")         ;; nf-fa-spotify
+    ;; ── divider ──────────────────────────────────────────────────
+    (box :class "dock-sep")
+    (dock-btn :icon "󰍹"  :label "Monitor"   :cmd "kitty -e btop &")   ;; nf-md-monitor
+    (dock-btn :icon "󰌾"  :label "Lock"      :cmd "hyprlock &")))      ;; nf-md-lock
+
+
+;;;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;;; WINDOW
+;;;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+;;  Width is a fixed pixel value — "auto" is NOT valid in eww geometry.
+;;  Adjust `width` if you add / remove dock buttons:
+;;    each button ≈ 46 px, gap = 4 px, padding = 12 px each side
+;;    8 buttons → (8*46) + (7*4) + (9 sep) + (24 pad) ≈ 430 px → use 480px
+
+(defwindow dock
+  :monitor   0
+  :geometry  (geometry
+               :x      "0px"
+               :y      "10px"
+               :width  "480px"
+               :height "70px"
+               :anchor "bottom center")
+  :stacking  "overlay"
+  :exclusive false
+  :focusable false
+  :namespace "eww-dock"
+  (dock))
