@@ -1,0 +1,95 @@
+* {
+  border: none;
+  color: #f5f5f7;
+  outline: none;
+  box-shadow: none;
+  font-family: "SF Pro Text", "JetBrainsMono Nerd Font", sans-serif;
+}
+
+window {
+  background-color: rgba(22, 22, 24, 0.88);
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+button {
+  background-color: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 58px 12px 10px;
+  margin: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color 180ms, border-color 180ms, color 180ms;
+  min-width: 80px;
+  min-height: 84px;
+  background-repeat: no-repeat;
+  background-position: center 18px;
+  background-size: 40px 40px;
+}
+
+#lock      { background-image: url("/usr/share/wlogout/icons/lock.png"); }
+#logout    { background-image: url("/usr/share/wlogout/icons/logout.png"); }
+#suspend   { background-image: url("/usr/share/wlogout/icons/suspend.png"); }
+#hibernate { background-image: url("/usr/share/wlogout/icons/hibernate.png"); }
+#reboot    { background-image: url("/usr/share/wlogout/icons/reboot.png"); }
+#shutdown  { background-image: url("/usr/share/wlogout/icons/shutdown.png"); }
+
+button:focus {
+  border-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+button:hover {
+  color: #ffffff;
+}
+
+button:active {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+progressbar,
+progressbar trough,
+progressbar progress,
+progress {
+  background-color: transparent;
+  background-image: none;
+  border: none;
+  box-shadow: none;
+  min-height: 0;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+}
+
+#lock:hover {
+  background-color: rgba(52, 199, 89, 0.2);
+  border-color: rgba(52, 199, 89, 0.3);
+}
+
+#logout:hover {
+  background-color: rgba(255, 59, 48, 0.2);
+  border-color: rgba(255, 59, 48, 0.3);
+}
+
+#suspend:hover {
+  background-color: rgba(90, 200, 250, 0.18);
+  border-color: rgba(90, 200, 250, 0.28);
+}
+
+#hibernate:hover {
+  background-color: rgba(255, 204, 0, 0.16);
+  border-color: rgba(255, 204, 0, 0.26);
+}
+
+#reboot:hover {
+  background-color: rgba(255, 149, 0, 0.18);
+  border-color: rgba(255, 149, 0, 0.28);
+}
+
+#shutdown:hover {
+  background-color: rgba(255, 59, 48, 0.2);
+  border-color: rgba(255, 59, 48, 0.3);
+}

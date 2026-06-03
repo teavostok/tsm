@@ -1,0 +1,62 @@
+mpd_host = ~/.config/mpd/socket
+mpd_port = 6600
+mpd_connection_timeout = 5
+
+visualizer_data_source = /tmp/mpd.fifo
+visualizer_output_name = Visualizer
+visualizer_in_stereo = yes
+visualizer_type = spectrum
+visualizer_look = ●▮
+visualizer_color = 41, 83, 119, 155, 185, 215, 209, 203
+visualizer_orientation = horizontal
+
+progressbar_look = ─╼
+progressbar_boldness = yes
+progressbar_color = white
+progressbar_elapsed_color = 7
+
+song_columns_list = (3, 3, 1, 30, 40)
+song_list_format = {%a }{%t}|{%f}
+
+now_playing_prefix = ♫ 
+now_playing_suffix = 
+
+song_status_format = {{%a - %t}} {%b}}
+
+display_bitrate = no
+display_remaining_time = no
+
+header_window_color = white
+header_volume_color = 7
+main_window_color = white
+color1 = white
+color2 = 7
+
+alternative_header_first_line_format = $1$aq$$7$aq$$1$t$$7$aq$$
+alternative_header_second_line_format = {{$5%a$9$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8}{$5%b$9$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8$8}{$6%y}}
+
+empty_tag_color = 8
+media_lib_primary_tag = artist
+media_lib_secondary_tag = album
+media_lib_display_mode = columns
+media_lib_show_mpd_host = no
+media_lib_clear_playlist_on_exit = yes
+
+playlist_show_mpd_host = no
+
+discard_colors_if_item_is_selected = no
+incremental_seeking = yes
+seek_time = 5
+space_selects = no
+
+allow_for_physical_item_deletion = no
+
+default_tag_editor_editor = kitty +kitten
+
+mouse_list_scroll_whole_page = no
+lines_scrolled = 2
+
+enable_window_title = yes
+
+search_engine_display_mode = columns
+display_screens_numbers_on_start = yes
