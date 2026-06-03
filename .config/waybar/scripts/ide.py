@@ -428,7 +428,6 @@ class Editor:
         label = Gtk.Label(label=name)
         label.set_margin_start(4)
         label.set_margin_end(4)
-        label.show()
 
         close_btn = Gtk.Button(label="✕")
         close_btn.set_relief(Gtk.ReliefStyle.NONE)
@@ -438,12 +437,12 @@ class Editor:
         hb = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         hb.pack_start(label, True, True, 0)
         hb.pack_start(close_btn, False, False, 0)
-        hb.show_all()
 
         n = self.notebook.append_page(sw, hb)
         self.notebook.set_current_page(n - 1)
         self.notebook.set_tab_reorderable(sw, True)
         self._files[id(sw)] = path
+        sw.show_all()
 
     def _on_modified(self, buf, path):
         for i in range(self.notebook.get_n_pages()):
