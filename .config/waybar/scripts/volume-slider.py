@@ -48,27 +48,39 @@ scale slider {
 """
 
 
-def hyprctl(args):
+def sh(args):
     return subprocess.run(args, capture_output=True, text=True).stdout.strip()
 
 
 def get_vol():
-    r = hyprctl(["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"])
-    out = r.split(None, 2)
-    vol = float(out[1]) * 100 if len(out) > 1 else 50
-    muted = "MUTED" in r
-    return vol, muted
+    r = sh(["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"])
+    parts = r.split(None, 2)
+    vol = float(parts[1]) * 100 if len(parts) > 1 else 50
+    return vol, "MUTED" in r
 
 
 def set_vol(v):
-    val = v / 100.0
-    hyprctl(["wpctl", "set-volume", "-l", "1.5", "@DEFAULT_AUDIO_SINK@", f"{val}"])
+    sh(["wpctl", "set-volume", "-l", "1.5", "@DEFAULT_AUDIO_SINK@", str(v / 100.0)])
+
+
+def get_screen_w():
+    try:
+        out = sh(["hyprctl", "monitors"])
+        for line in out.splitlines():
+            if "@" in line and " at " in line:
+                return int(line.split(None, 1)[0].split("x")[0])
+    except (ValueError, IndexError):
+        pass
+    return 1920
+
+
+def hypr_move(addr, x, y):
+    sh(["hyprctl", "dispatch", "movewindowpixel", f"exact {x} {y},address:{addr}"])
 
 
 class VolumeWindow:
     def __init__(self):
-        self._dirty = False
-        self._exposed = False
+        self._timer_id = None
         vol, muted = get_vol()
 
         css_provider = Gtk.CssProvider()
@@ -85,7 +97,6 @@ class VolumeWindow:
         self.win.set_resizable(False)
         self.win.set_skip_taskbar_hint(True)
         self.win.set_keep_above(True)
-        self.win.set_position(Gtk.WindowPosition.NONE)
         self.win.set_accept_focus(True)
         self.win.connect("key-press-event", self._on_key)
         self.win.connect("focus-out-event", self._on_focus_out)
@@ -109,52 +120,39 @@ class VolumeWindow:
         box.pack_start(self.scale, True, True, 0)
         self.win.add(box)
         self.win.set_size_request(300, -1)
-
-        try:
-            out = hyprctl(["hyprctl", "monitors"])
-            for line in out.splitlines():
-                line = line.strip()
-                if "@" in line and " at " in line:
-                    parts = line.split(None, 1)
-                    res = parts[0].split("x")
-                    sw = int(res[0])
-                    break
-            else:
-                sw = 1920
-        except (ValueError, IndexError):
-            sw = 1920
-
-        pw = 300
-        x = sw - pw - 18
-        y = 36
-        self.win.move(x, y)
         self.win.show_all()
 
-        GLib.idle_add(self._stabilize, x, y)
+        sw = get_screen_w()
+        self._target_x = sw - 318
+        self._target_y = 36
+        self._retries = 0
+        GLib.timeout_add(150, self._reposition)
 
-    def _stabilize(self, x, y):
-        clients = json.loads(hyprctl(["hyprctl", "clients", "-j"]))
+    def _reposition(self):
+        clients = json.loads(sh(["hyprctl", "clients", "-j"]))
         for c in clients:
             if c.get("title") == "volume-slider":
                 addr = c.get("address", "")
                 if addr:
-                    hyprctl(["hyprctl", "dispatch", "movewindowpixel",
-                             f"exact {x} {y},address:{addr}"])
-                break
+                    x, y = self._target_x, self._target_y
+                    hypr_move(addr, x, y)
+                return False
+        self._retries += 1
+        if self._retries < 10:
+            GLib.timeout_add(100, self._reposition)
         return False
 
     def _on_focus_out(self, *_):
         self._close()
 
     def _on_change(self, scale):
-        if self._dirty:
-            return
-        self._dirty = True
-        GLib.timeout_add(150, self._commit, scale.get_value())
+        if self._timer_id is not None:
+            GLib.source_remove(self._timer_id)
+        self._timer_id = GLib.timeout_add(150, self._commit, scale.get_value())
 
     def _commit(self, v):
+        self._timer_id = None
         set_vol(round(v))
-        self._dirty = False
         return False
 
     def _on_key(self, _, event):
