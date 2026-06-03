@@ -8,34 +8,37 @@ is_muted() {
   wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q MUTED
 }
 
-vol=$(get_vol)
-text=""
-is_muted && text=""
-
-# Kill any existing Volume yad window
-hyprctl clients -j 2>/dev/null | python3 -c "
+# Kill existing volume slider windows
+for pid in $(hyprctl clients -j 2>/dev/null | python3 -c "
 import sys,json
 for c in json.load(sys.stdin):
-    if c.get('title','').lower() == 'volume':
+    if 'volume-slider' in c.get('title',''):
         print(c.get('pid',''))
-" 2>/dev/null | while read -r pid; do
-  [ -n "$pid" ] && kill "$pid" 2>/dev/null
+" 2>/dev/null); do
+  kill "$pid" 2>/dev/null
 done
 
-# Pre-calculate position below cursor
-read -r CX CY <<< "$(hyprctl cursorpos | tr ',' ' ')"
-CX=${CX:-960}; CY=${CY:-540}
-read -r SW SH <<< "$(hyprctl monitors | awk '/^[[:space:]]+[0-9]+x/{gsub(/@.*/,"",$1); split($1,a,"x"); print a[1],a[2]; exit}')"
-SW=${SW:-1920}; SH=${SH:-1200}
-PW=300
-X=$((CX - PW / 2)); [ "$X" -lt 10 ] && X=10; [ "$((X + PW))" -gt "$SW" ] && X=$((SW - PW - 10))
-Y=$((CY + 14))
+vol=$(get_vol)
 
-# Launch yad in background
+if is_muted; then
+  text=""
+else
+  text=""
+fi
+
+# Calculate position — top-right, below waybar
+read -r SW SH <<< "$(hyprctl monitors | awk '/^[[:space:]]+[0-9]+x/{gsub(/@.*/,"",$1); split($1,a,"x"); print a[1],a[2]; exit}')"
+SW=${SW:-1920}
+SH=${SH:-1200}
+PW=300
+X=$((SW - PW - 18))
+Y=36
+
 result_file="/tmp/waybar-volume-result"
 > "$result_file"
+
 yad --scale \
-  --title="Volume" \
+  --title="volume-slider" \
   --text="$text" \
   --value="$vol" \
   --min=0 --max=150 --step=5 \
@@ -69,12 +72,12 @@ yad --scale \
   " > "$result_file" &
 YAD_PID=$!
 
-# Position via hyprctl (only reliable way in Wayland)
-for _ in 1 2 3 4 5; do
+# Position the window at the top-right via hyprctl
+for _ in 1 2 3 4 5 6 7 8; do
   ADDR=$(hyprctl clients -j 2>/dev/null | python3 -c "
 import sys,json
 for c in json.load(sys.stdin):
-    if c.get('title','') == 'Volume':
+    if c.get('title','') == 'volume-slider':
         print(c.get('address',''))
         break
 " 2>/dev/null)
@@ -82,12 +85,11 @@ for c in json.load(sys.stdin):
     hyprctl dispatch movewindowpixel "exact ${X} ${Y},address:${ADDR}" 2>/dev/null
     break
   fi
-  sleep 0.1
+  sleep 0.08
 done
 
 wait "$YAD_PID" 2>/dev/null
 
-# Apply selected volume (take last line from yad output)
 new_vol=$(tail -1 "$result_file" 2>/dev/null)
 if [ -n "$new_vol" ]; then
   wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ "${new_vol}%"
