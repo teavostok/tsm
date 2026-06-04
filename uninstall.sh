@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 DOTDIR="$(cd "$(dirname "$0")" && pwd)"
 
@@ -9,20 +8,14 @@ echo "  removing configs and restoring defaults"
 echo ""
 
 remove_link_or_dir() {
-  local name="$1"
   local dst="$HOME/$2"
-
-  # Remove symlink
   if [ -L "$dst" ]; then
     rm "$dst"
     echo "    removed symlink $2"
-  # Remove real file/dir we installed
   elif [ -e "$dst" ]; then
     rm -rf "$dst"
     echo "    removed $2"
   fi
-
-  # Restore backup if it exists
   local bak="${dst}.bak"
   if [ -e "$bak" ]; then
     mv "$bak" "$dst"
@@ -47,9 +40,14 @@ remove_link_or_dir ".config/gtk-3.0"     ".config/gtk-3.0"
 remove_link_or_dir ".config/fontconfig"  ".config/fontconfig"
 
 echo ""
+echo "  killing running processes..."
+pkill waybar 2>/dev/null && echo "    waybar stopped" || echo "    waybar not running"
+pkill swaync 2>/dev/null && echo "    swaync stopped" || echo "    swaync not running"
+
+echo ""
 echo "  all dotfiles removed."
 echo "  hyprland will start with its built-in defaults."
-echo "  other tools (waybar, kitty, rofi, etc.) will use their defaults."
+echo "  other programs will restart with defaults when you log in again."
 echo ""
 echo "  the cloned repo is still at $DOTDIR — remove it with:"
 echo "    rm -rf $DOTDIR"
